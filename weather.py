@@ -167,44 +167,87 @@ Valid report types:
     Observations in XML (XOB)
     Zone Forecast (ZFP)
 """
+import argparse
 from datetime import datetime
+import sys
+
 from pytz import timezone
 import requests
 
-base_url = "http://www.nws.noaa.gov/data/PQR/"
-reports = [
-    # "STQPQX", # 404  unknown
-    "HWOPQR",
-    "WSWPQR",      # winter storm warning
-    "SFPOR",
-    "AFDPQR",
-    "RFWPQR",
-    "ZFPPQR",
-    "CLIPDX",
-    "CF6PDX",
-    "LCOPQR",
-    "OSOPQR",
-    "RRMPDX",
-    "RTPPQR",
-    "RVSPQR",
-    "CWFPQR",
-    "FWFPQR",
-    "RVMPQR",
-    "STQPQR"
-]
 
-extra_urls = [
-    "http://services.swpc.noaa.gov/text/advisory-outlook.txt",  # space weather
-]
+def config():
+    global OUTPUT, TIMEZONE, VERBOSE
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-o', '--output-file', help="Name of output file",
+    )
+    parser.add_argument(
+        '-t', '--timezone', help='timezone', default='America/Los_Angeles'
+    )
+    parser.add_argument('-v', '--verbose', action="store_true", help='verbose')
+    args = parser.parse_args()
+    print args
+    OUTPUT = args.output_file
+    TIMEZONE = args.timezone
+    VERBOSE = True if args.verbose or not args.output_file else False
+    print OUTPUT, TIMEZONE, VERBOSE
 
-urls = [base_url + report for report in reports] + extra_urls
 
-with open("weather.txt", 'w') as weather:
-    now = datetime.now(timezone('America/Los_Angeles'))
-    weather.write(now.ctime())
-    for url in urls:
+def get_urls():
+    base_url = "http://www.nws.noaa.gov/data/PQR/"
+    forecasts = [
+        # "STQPQX", # 404  unknown
+        "HWOPQR",
+        "WSWPQR",      # winter storm warning
+        "SFPOR",
+        "AFDPQR",
+        "RFWPQR",
+        "ZFPPQR",
+        "CLIPDX",
+        "CF6PDX",
+        "LCOPQR",
+        "OSOPQR",
+        "RRMPDX",
+        "RTPPQR",
+        "RVSPQR",
+        "CWFPQR",
+        "FWFPQR",
+        "RVMPQR",
+        "STQPQR"
+    ]
+
+    extra_urls = [
+        # space weather
+        "http://services.swpc.noaa.gov/text/advisory-outlook.txt",
+    ]
+    return [base_url + forecast for forecast in forecasts] + extra_urls
+
+
+def main():
+    report = []
+    now = datetime.now(timezone(TIMEZONE))
+    report.append(now.ctime())
+    for url in get_urls():
+        if VERBOSE:
+            print "fetching {}...".format(url)
         req = requests.get(url)
         data = req.text
         # report not present, doesn't 404
         if not data.startswith('<b>Cannot') or req.status_code != 200:
-            weather.write(data)
+            report.append(data)
+            if VERBOSE:
+                print data
+        elif VERBOSE:
+            print "No report at {}".format(url)
+    if OUTPUT:
+        try:
+            with open(OUTPUT, 'w') as weather:
+                for forecast in report:
+                    weather.write(forecast)
+        except IOError:
+            print "Unable to write to file {}".format(OUTPUT)
+
+
+if __name__ == "__main__":
+    config()
+    main()
