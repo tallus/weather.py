@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 """Downloads NOAA weather reports and outputs them to  a file.
 
-Text based reports are designated by a six letter code
+Text based reports are designated by a five or six letter code
 
 The first three letters designates the report type:
 
@@ -12,7 +12,10 @@ refers to an NOAA weather station) note these are actually designated by a four
 letter code, but the first letter is dropped. This is typically K (as in US
 call signs*) so it not needed. Thus Portland, Oregon is KPQR but uses PQR in
 reports so AFDPQR is the Area Forecast Discussion from the Portland, OR
-weather station, and can be found at http://www.nws.noaa.gov/data/PQR/AFDPQR
+weather station, and can be found at http://www.nws.noaa.gov/data/PQR/AFDPQR.
+
+In the case of five letter codes the last two appear to correspond
+to the state code, e.g. OR for Oregon.
 
 N.B.
 1. Not all reports exists at all nodes
@@ -217,6 +220,7 @@ def get_urls():
         "WSWPQR",      # winter storm warning
         "SFPOR",
         "AFDPQR",
+        "RWROR",
         "RFWPQR",
         "ZFPPQR",
         "CLIPDX",
@@ -225,16 +229,26 @@ def get_urls():
         "OSOPQR",
         "RRMPDX",
         "RTPPQR",
+        "RTPOR",
+        "PNSPQR",
         "RVSPQR",
+        "OSOPQR",
         "CWFPQR",
         "FWFPQR",
+        "MMWPQR",
         "RVMPQR",
-        "STQPQR"
+        "STQPQR",
+        "SFTPQR",
     ]
 
     extra_urls = [
         # space weather
         "http://services.swpc.noaa.gov/text/advisory-outlook.txt",
+        "http://services.swpc.noaa.gov/text/discussion.txt",
+        "http://services.swpc.noaa.gov/text/wwv.txt",
+        "http://services.swpc.noaa.gov/text/sgarf.txt",
+        "http://services.swpc.noaa.gov/text/3-day-forecast.txt",
+        "http://services.swpc.noaa.gov/text/weekly.txt",
     ]
     return [base_url + forecast for forecast in forecasts] + extra_urls
 
