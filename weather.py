@@ -1,4 +1,4 @@
-
+#! /usr/bin/env python
 """Downloads NOAA weather reports and outputs them to  a file.
 
 Text based reports are designated by a six letter code
@@ -204,11 +204,9 @@ def config():
     )
     parser.add_argument('-v', '--verbose', action="store_true", help='verbose')
     args = parser.parse_args()
-    print args
     OUTPUT = args.output_file
     TIMEZONE = args.timezone
     VERBOSE = True if args.verbose or not args.output_file else False
-    print OUTPUT, TIMEZONE, VERBOSE
 
 
 def get_urls():
